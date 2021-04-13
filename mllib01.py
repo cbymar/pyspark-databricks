@@ -49,10 +49,10 @@ full_data = spark.read.csv(os.path.join(rawpath, "Ecommerce_Customers.csv"), hea
 full_data.printSchema()
 type(full_data)
 
-cleanedcols = cleancols(full_data.columns)
+# cleanedcols = cleancols(full_data.columns)
+cleanedcols = full_data.columns
 
-full_data = full_data.toDF(*cleanedcols)   # this may not be reasonable
-type(full_data)
+# full_data = full_data.toDF(*cleanedcols)   # this may not be reasonable
 """
 Necessary set up for pyspark ml
 Create an assembler to pack the features
@@ -60,13 +60,22 @@ call assembler.transform() on the full data
 """
 from pyspark.ml.linalg import Vectors
 from pyspark.ml.feature import VectorAssembler
-
-assembler = VectorAssembler(inputCols=cleanedcols[:-1],
+# only work with numeric columns here
+assembler = VectorAssembler(inputCols=['Avg Session Length',
+                                       'Time on App','Time on Website'],
                             outputCol="features")  # packs into the summary feature
 
-output = assembler.transform(full_data)
-
-
+full_data_transformed = assembler.transform(full_data)
 # we are predicting yearly_amount_spend
-train_data, test_data = full_data.randomSplit(([0.7, 0.3]))
+train_data, test_data = full_data_transformed.randomSplit(([0.7, 0.3]))
+train_data.describe().show()
+test_data.describe().show()
 
+lr = LinearRegression(labelCol="Yearly Amount Spent",
+                      featuresCol="features")  # use default name for features
+lr_model = lr.fit(train_data)
+lr_model_tested = lr_model.evaluate(test_data)
+
+lr_model_tested.residuals.show()
+lr_model_tested.rootMeanSquaredError
+lr_model_tested.r2
