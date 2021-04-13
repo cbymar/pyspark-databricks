@@ -135,3 +135,4 @@ ignoreland/
 *.ipynb
 .idea/
 .DS_Store
+*.yaml
