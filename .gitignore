@@ -132,3 +132,6 @@ ignoreland/
 *.json
 *.pq
 *.html
+*.ipynb
+.idea/
+.DS_Store
