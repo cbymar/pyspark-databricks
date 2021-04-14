@@ -15,6 +15,8 @@ consumer_secret = creds["TWTR"]["APISECRET"]
 access_token = creds["TWTR"]["ACCESSTOKEN"]
 access_secret = creds["TWTR"]["ACCESSTOKENSECRET"]
 
+trackterm = creds["TERMS"]["SEARCHTERM"]
+
 class TweetListener(StreamListener):
 
     def __init__(self, csocket):
@@ -39,19 +41,18 @@ def sendData(c_socket):
     auth.set_access_token(access_token, access_secret)
 
     twitter_stream = Stream(auth, TweetListener(c_socket))
-    twitter_stream.filter(track=["guitar"])
+    twitter_stream.filter(track=[trackterm])
 
 if __name__ == "__main__":
     s = socket.socket()
     host = "127.0.0.1"
-    port = 5555
+    port = 9999
     s.bind((host, port))
 
     print("listening on port " + str(port))
 
-    s.listen(5)
+    s.listen(10)
     c, addr = s.accept()
+    print("Got request from: " + str(addr))
 
     sendData(c)
-
-
